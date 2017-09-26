@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%-4relative [%thread] %-5level %logger{35} - %msg%n
+            </pattern>
+        </encoder>
+    </appender>
+
+    <!-- 时间戳定义，timeReference：使用日志产生日期为时间基准 -->
+    <timestamp key="byDay" datePattern="yyyyMMdd"
+        timeReference="contextBirth" />
+
+    <appender name="DAYFILE"
+        class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${OPENSHIFT_LOG_DIR}/jbossews-${byDay}.log</file>
+        <!-- 追加日志到原文件结尾 -->
+        <append>true</append>
+        <!-- timebasedrollingpolicy：演示时间和大小为基础的日志文件归档 -->
+        <rollingPolicy
+            class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!--每隔半天：.YYYY-MM-dd-a；每小时：.YYYY-MM-dd-HH；每分钟：.YYYY-MM-dd-HH-mm -->
+            <fileNamePattern>${OPENSHIFT_LOG_DIR}/jbossews-%d{yyyyMMdd}.%i.log
+            </fileNamePattern>
+
+            <!-- 控制归档文件的最大数量的保存，删除旧的文件，默认单位天数 -->
+            <maxHistory>7</maxHistory>
+            <!-- 除按日志记录之外，还配置了日志文件不能超过10M(默认)，若超过10M，日志文件会以索引0开始 -->
+            <timeBasedFileNamingAndTriggeringPolicy
+                class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <MaxFileSize>10MB</MaxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+
+        <encoder>
+            <pattern>[%-5level] %d{HH:mm:ss.SSS} [%thread] %logger{36} -
+                %msg%n
+            </pattern>
+        </encoder>
+
+    </appender>
+
+    <logger name="org.springframework" level="debug" />
+    <logger name="org.mybatis.spring" level="debug" />
+    <logger name="com.mysql" level="debug" />
+
+    <root>
+        <!-- 定义了ERROR和INFO级别的日志，分别在FILE文件和控制台输出 -->
+        <!-- <level value="debug" /> -->
+        <level value="debug" />
+        <appender-ref ref="STDOUT" />
+        <appender-ref ref="DAYFILE" />
+        <!-- <appender-ref ref="FILE" /> -->
+    </root>
+</configuration>

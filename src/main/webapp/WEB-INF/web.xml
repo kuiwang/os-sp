@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+    metadata-complete="false">
+    <!-- welcome page -->
+    <!-- <welcome-file-list> <welcome-file>index.html</welcome-file> </welcome-file-list> -->
+
+    <context-param>
+        <param-name>webAppRootKey</param-name>
+        <param-value>sp.root</param-value>
+    </context-param>
+
+    <!--session 失效/超时分钟数 -->
+    <session-config>
+        <session-timeout>30</session-timeout>
+    </session-config>
+
+    <!-- spring context -->
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>classpath:spring/context-root.xml</param-value>
+    </context-param>
+
+    <!-- spring上下文监听器 START -->
+    <!-- <listener> <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class> 
+        </listener> -->
+    <listener>
+        <listener-class>com.scott.dev.modules.sys.listener.WebContextListener</listener-class>
+    </listener>
+    <listener>
+        <listener-class>com.scott.dev.listener.AppContextListener</listener-class>
+    </listener>
+    <listener>
+        <listener-class>com.scott.dev.listener.AppRequestListener</listener-class>
+    </listener>
+    <listener>
+        <listener-class>com.scott.dev.listener.AppSessionListener</listener-class>
+    </listener>
+
+
+    <!--负责处理由JavaBeans Introspector的使用而引起的内存泄露。 可以保证在web 应用关闭的时候释放与掉这个web应用相关的 
+        classloader 和由它管理的类 .防止Struts和Quartz等内存溢出监听器 -->
+    <listener>
+        <listener-class>org.springframework.web.util.IntrospectorCleanupListener</listener-class>
+    </listener>
+    <!-- 监听HTTP请求事件，为Bean的request,session,globalsession等作用域提供支持 -->
+    <listener>
+        <listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
+    </listener>
+
+    <filter>
+        <filter-name>encodingFilter</filter-name>
+        <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+        <init-param>
+            <param-name>encoding</param-name>
+            <param-value>UTF-8</param-value>
+        </init-param>
+        <init-param>
+            <param-name>forceEncoding</param-name>
+            <param-value>true</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>encodingFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <!-- 过滤POST请求 -->
+    <filter>
+        <filter-name>methodFilter</filter-name>
+        <filter-class>org.springframework.web.filter.HiddenHttpMethodFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>methodFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <!-- shiro filter -->
+    <filter>
+        <filter-name>shiroFilter</filter-name>
+        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+        <init-param>
+            <param-name>targetFilterLifecycle</param-name>
+            <param-value>true</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>shiroFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <!-- sitemash filter -->
+    <filter>
+        <filter-name>sitemeshFilter</filter-name>
+        <filter-class>com.opensymphony.sitemesh.webapp.SiteMeshFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>sitemeshFilter</filter-name>
+        <url-pattern>/a/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>sitemeshFilter</filter-name>
+        <url-pattern>/f/*</url-pattern>
+    </filter-mapping>
+
+    <!-- restlet servlet -->
+    <servlet>
+        <servlet-name>RestletServlet</servlet-name>
+        <servlet-class>org.restlet.ext.servlet.ServerServlet</servlet-class>
+        <init-param>
+            <param-name>org.restlet.application</param-name>
+            <param-value>com.scott.dev.modules.act.rest.ActRestApplication</param-value>
+        </init-param>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>RestletServlet</servlet-name>
+        <url-pattern>/act/rest/service/*</url-pattern>
+    </servlet-mapping>
+
+    <!-- 连接池 启用 Web 监控统计功能 -->
+    <filter>
+        <filter-name>DruidWebStatFilter</filter-name>
+        <filter-class>com.alibaba.druid.support.http.WebStatFilter</filter-class>
+        <init-param>
+            <param-name>exclusions</param-name>
+            <param-value>*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*</param-value>
+        </init-param>
+        <init-param>
+            <param-name>sessionStatMaxCount</param-name>
+            <param-value>1000</param-value>
+        </init-param>
+        <init-param>
+            <param-name>profileEnable</param-name>
+            <param-value>true</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>DruidWebStatFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <servlet>
+        <servlet-name>DruidStatView</servlet-name>
+        <servlet-class>com.alibaba.druid.support.http.StatViewServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>DruidStatView</servlet-name>
+        <url-pattern>/druid/*</url-pattern>
+    </servlet-mapping>
+    <!-- 连接池 启用 Web 监控统计功能 end -->
+
+    <servlet>
+        <servlet-name>mvc</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <init-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>classpath:spring/dispatcher-mvc.xml</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>mvc</servlet-name>
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+
+    <!-- CKFinderConnectorServlet -->
+    <servlet>
+        <servlet-name>CKFinderConnectorServlet</servlet-name>
+        <servlet-class>com.scott.dev.common.web.CKFinderConnectorServlet</servlet-class>
+        <init-param>
+            <param-name>XMLConfig</param-name>
+            <param-value>/WEB-INF/ckfinder.xml</param-value>
+        </init-param>
+        <init-param>
+            <param-name>debug</param-name>
+            <param-value>false</param-value>
+        </init-param>
+        <init-param>
+            <param-name>configuration</param-name>
+            <param-value>com.scott.dev.common.web.CKFinderConfig</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CKFinderConnectorServlet</servlet-name>
+        <url-pattern>/static/ckfinder/core/connector/java/connector.java</url-pattern>
+    </servlet-mapping>
+
+    <!-- FileUploadFilter -->
+    <filter>
+        <filter-name>FileUploadFilter</filter-name>
+        <filter-class>com.ckfinder.connector.FileUploadFilter</filter-class>
+        <init-param>
+            <param-name>sessionCookieName</param-name>
+            <param-value>JSESSIONID</param-value>
+        </init-param>
+        <init-param>
+            <param-name>sessionParameterName</param-name>
+            <param-value>jsessionid</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>FileUploadFilter</filter-name>
+        <url-pattern>/static/ckfinder/core/connector/java/connector.java</url-pattern>
+    </filter-mapping>
+
+    <!-- UserfilesDownloadServlet -->
+    <servlet>
+        <servlet-name>UserfilesDownloadServlet</servlet-name>
+        <servlet-class>com.scott.dev.common.servlet.UserfilesDownloadServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>UserfilesDownloadServlet</servlet-name>
+        <url-pattern>/userfiles/*</url-pattern>
+    </servlet-mapping>
+
+    <!-- ValidateCodeServlet -->
+    <servlet>
+        <servlet-name>ValidateCodeServlet</servlet-name>
+        <servlet-class>com.scott.dev.common.servlet.ValidateCodeServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ValidateCodeServlet</servlet-name>
+        <url-pattern>/servlet/validateCodeServlet</url-pattern>
+    </servlet-mapping>
+
+    <mime-mapping>
+        <extension>ico</extension>
+        <mime-type>image/vnd.microsoft.icon</mime-type>
+    </mime-mapping>
+
+    <!-- <error-page> <error-code>403</error-code> <location>/common/error/403.jsp</location> 
+        </error-page> <error-page> <error-code>404</error-code> <location>/common/error/404.jsp</location> 
+        </error-page> <error-page> <error-code>500</error-code> <location>/common/error/500.jsp</location> 
+        </error-page> -->
+    <!-- error page -->
+    <error-page>
+        <error-code>500</error-code>
+        <location>/WEB-INF/views/error/500.jsp</location>
+    </error-page>
+    <error-page>
+        <error-code>404</error-code>
+        <location>/WEB-INF/views/error/404.jsp</location>
+    </error-page>
+
+</web-app>
+

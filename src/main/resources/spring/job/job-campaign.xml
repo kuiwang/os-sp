@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="http://www.springframework.org/schema/beans"
+    xsi:schemaLocation="
+           http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       ">
+
+    <bean id="campaignSchedulerFactoryBean"
+        class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        <property name="triggers">
+            <list>
+                <ref bean="syncAllCampaignJobTrigger" />
+            </list>
+        </property>
+        <property name="startupDelay" value="3" />
+        <property name="configLocation" value="classpath:prop/quartz.properties"></property>
+    </bean>
+
+    <bean id="syncAllCampaignJobTrigger"
+        class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
+        <property name="jobDetail" ref="syncAllCampaignJobDetail" />
+        <property name="startDelay">
+            <value>1</value>
+        </property>
+        <property name="repeatInterval">
+            <value>1</value>
+        </property>
+        <property name="repeatCount">
+            <value>0</value>
+        </property>
+    </bean>
+
+    <bean id="syncAllCampaignJobDetail"
+        class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="syncAllCampaignScheduler" />
+        <property name="targetMethod" value="execute" />
+        <property name="concurrent" value="false" />
+    </bean>
+
+    <bean id="syncAllCampaignScheduler" class="com.emarbox.dsp.scheduler.SyncAllCampaignScheduler"></bean>
+
+</beans>

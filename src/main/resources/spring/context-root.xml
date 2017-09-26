@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:tx="http://www.springframework.org/schema/tx" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+    xmlns:p="http://www.springframework.org/schema/p" xmlns:task="http://www.springframework.org/schema/task"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans  
+     http://www.springframework.org/schema/beans/spring-beans-4.0.xsd  
+     http://www.springframework.org/schema/context  
+     http://www.springframework.org/schema/context/spring-context-4.0.xsd  
+     http://www.springframework.org/schema/tx  
+     http://www.springframework.org/schema/tx/spring-tx-4.0.xsd  
+      http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.0.xsd
+     http://www.springframework.org/schema/jdbc  
+     http://www.springframework.org/schema/jdbc/spring-jdbc-4.0.xsd http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
+
+    <!-- 加载配置属性文件 -->
+    <context:property-placeholder
+        ignore-unresolvable="true" location="classpath*:*.properties" />
+
+    <!-- 加载应用属性实例，可通过 @Value("#{APP_PROP['jdbc.driver']}") String jdbcDriver 
+        方式引用 -->
+    <util:properties id="APP_PROP" location="classpath*:*.properties"
+        local-override="true" />
+
+    <!-- 开启异步任务（同时开启定时器注解扫描） -->
+    <task:annotation-driven />
+
+    <!-- 使用@AspectJ风格的切面声明 -->
+    <!-- <aop:aspectj-autoproxy/> -->
+
+    <!-- 使用Annotation自动注册Bean -->
+    <!-- 在主容器中不扫描@Controller注解，在SpringMvc中只扫描@Controller注解 -->
+    <context:component-scan base-package="com.scott.dev">
+        <context:exclude-filter type="annotation"
+            expression="org.springframework.stereotype.Controller" />
+    </context:component-scan>
+    <!-- <context:component-scan base-package="org.jiucai.appframework" /> -->
+
+    <!-- Activates various annotations to be detected in bean classes -->
+    <context:annotation-config />
+
+    <!-- <bean class="com.scott.dev.holder.SpringContextHolder" /> -->
+
+    <!-- 配置 JSR303 Bean Validator 定义 -->
+    <bean id="validator"
+        class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean" />
+
+    <!-- 引入MySQL配置 -->
+    <!-- <import resource="classpath:spring/spring-mysql.xml" /> -->
+
+    <!-- 引入Druid配置 -->
+    <import resource="classpath:spring/spring-druid.xml" />
+
+    <!-- 引入定时器任务配置 -->
+    <!-- <import resource="classpath:spring/spring-job.xml" /> -->
+
+    <!-- 引入缓存配置 -->
+    <import resource="classpath:spring/spring-cache.xml" />
+
+    <!-- 引入Redis配置（无需如此配置，直接使用RedisUtil即可） -->
+    <import resource="classpath:spring/spring-jedis.xml" />
+
+    <!-- 引入Shiro配置 -->
+    <import resource="classpath:spring/spring-shiro.xml" />
+
+    <!-- spring-activiti -->
+    <import resource="classpath:spring/spring-activiti.xml" />
+
+    <!-- 引入hibernate4配置 -->
+    <!-- <import resource="classpath:spring/spring-hibernate.xml"/> -->
+
+    <!-- 引入CXF配置 -->
+    <!-- <import resource="classpath:spring/spring-cxf.xml" /> -->
+
+    <!-- 引入MongoDB配置 -->
+    <!-- <import resource="classpath:spring/spring-mongo.xml" /> -->
+
+    <!-- 引入Socket配置 -->
+    <!-- <import resource="classpath:spring-socket.xml" /> -->
+
+</beans>

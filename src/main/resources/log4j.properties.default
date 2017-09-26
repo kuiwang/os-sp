@@ -1,0 +1,42 @@
+# log4j config
+# Set root logger level to info
+log4j.rootLogger = INFO,stdout,D
+###### Console appender definition #######
+
+
+log4j.appender.stdout = org.apache.log4j.ConsoleAppender
+log4j.appender.stdout.layout = org.apache.log4j.PatternLayout
+log4j.appender.Console.layout.ConversionPattern=[%p]|[%d{yyyy-MM-dd HH:mm:ss,SSS}]|[%rms]|[Thread:%t]|[%l]|%m|%x%n
+
+###### File appender definition #######
+log4j.appender.D = org.apache.log4j.DailyRollingFileAppender
+log4j.appender.D.File = ${OPENSHIFT_LOG_DIR}/jbossews1.log
+log4j.appender.D.Append = true
+log4j.appender.D.Threshold = INFO
+log4j.appender.D.DatePattern='.'yyyy-MM-dd
+log4j.appender.D.layout = org.apache.log4j.PatternLayout
+log4j.appender.D.layout.ConversionPattern = [%p]|[%d{yyyy-MM-dd HH:mm:ss,SSS}]|[%rms]|[Thread:%t]|[%l]|%m|%x|%n
+#log4j.appender.D.layout.ConversionPattern = [%p]|[%d{yyyy-MM-dd HH:mm:ss,SSS}]|[File:%F]|[Line:%L]|[%rms]|[Class:%c]|[Thread:%t]|[%l]|%m|%x|%n
+
+###### Log level overrides #######
+
+# Commented-in loggers will be exposed as JMX MBeans (refer to org.alfresco.repo.admin.Log4JHierarchyInit)
+# Hence, generally useful loggers should be listed with at least ERROR level to allow simple runtime
+# control of the level via a suitable JMX Console. Also, any other loggers can be added transiently via
+# Log4j addLoggerMBean as long as the logger exists and has been loaded.
+
+# Hibernate
+log4j.logger.org.hibernate=WARN
+
+# Spring
+log4j.logger.org.springframework=WARN
+# Turn off Spring remoting warnings that should really be info or debug.
+log4j.logger.org.springframework.remoting.support=WARN
+log4j.logger.org.springframework.util=WARN
+
+# MyBatis
+log4j.logger.org.mybatis.spring=WARN
+
+#Mongo driver
+log4j.logger.com.mongodb=WARN
+log4j.logger.org.bson=WARN

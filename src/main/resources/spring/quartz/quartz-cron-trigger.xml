@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="http://www.springframework.org/schema/beans"
+    xsi:schemaLocation="
+           http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       ">
+    <!-- Quartz -->
+    <bean id="quartzCron" class="com.scott.dev.scheduler.PrintTimeQuartz" />
+    <bean id="quartzJobCron"
+        class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="quartzCron"></property>
+        <property name="targetMethod" value="autoRun"></property>
+        <!-- 设定多个job不会并发运行 -->
+        <property name="concurrent" value="false"></property>
+    </bean>
+
+    <bean id="quartzTriggerCron"
+        class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="quartzJobCron" />
+
+        <property name="cronExpression" value="0 0/2 * * * ?"></property>
+    </bean>
+
+    <bean id="quartzSchedulerSimple"
+        class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        <property name="triggers">
+            <list>
+                <ref bean="quartzTriggerCron" />
+            </list>
+        </property>
+    </bean>
+</beans>

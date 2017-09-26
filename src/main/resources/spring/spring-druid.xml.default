@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:tx="http://www.springframework.org/schema/tx" xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:jdbc="http://www.springframework.org/schema/jdbc" xmlns:p="http://www.springframework.org/schema/p"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans  
+     http://www.springframework.org/schema/beans/spring-beans-3.0.xsd  
+     http://www.springframework.org/schema/context  
+     http://www.springframework.org/schema/context/spring-context-3.0.xsd  
+     http://www.springframework.org/schema/tx  
+     http://www.springframework.org/schema/tx/spring-tx-3.0.xsd  
+     http://www.springframework.org/schema/jdbc  
+     http://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd 
+     http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
+
+    <!-- 1. 数据源配置 -->
+    <context:property-placeholder
+        ignore-unresolvable="true" location="classpath:db.properties" />
+
+    <bean id="stat-filter" class="com.alibaba.druid.filter.stat.StatFilter">
+        <property name="slowSqlMillis" value="10000" />
+        <property name="logSlowSql" value="true" />
+    </bean>
+
+    <!-- druid方式配置数据源 -->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"
+        init-method="init" destroy-method="close">
+
+        <property name="name" value="dataSourceSP" />
+        <!-- 数据源驱动类可不写，Druid默认会自动根据URL识别DriverClass -->
+        <property name="driverClassName" value="${${db.config.app}.app.mysql.driver}" />
+        <!-- 基本属性 url、user、password -->
+        <property name="url" value="${${db.config.app}.app.mysql.url}" />
+        <property name="username" value="${${db.config.app}.app.mysql.username}" />
+        <property name="password" value="${${db.config.app}.app.mysql.password}" />
+
+        <!--配置初始化大小、最小、最大 -->
+        <property name="initialSize" value="1" /><!-- 初始化时建立物理连接的个数 -->
+        <property name="maxActive" value="256" /><!-- 最大连接池数量 -->
+        <property name="minIdle" value="1" /><!-- 最小连接池数量 配置获取连接等待超时的时间 -->
+        <!-- 获取连接时最大等待时间,单位毫秒.配置了maxWait之后,缺省启用公平锁,并发效率会有所下降,如果需要可以通过配置useUnfairLock属性为true使用非公平锁 -->
+        <property name="maxWait" value="60000" />
+
+        <property name="timeBetweenEvictionRunsMillis" value="60000" /> <!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
+        <property name="minEvictableIdleTimeMillis" value="300000" /><!-- 
+            连接保持空闲而不被驱逐的最长时间 ,配置一个连接在池中最小生存的时间,单位是毫秒 -->
+        <property name="validationQuery" value="select 1" />
+        <property name="testOnBorrow" value="false" /> <!-- 申请连接时执行validationQuery检测连接是否有效,做了这个配置会降低性能 -->
+        <property name="testWhileIdle" value="true" /><!-- 建议配置为true,不影响性能,并且保证安全性.申请连接的时候检测,如果空闲时间大于timeBetweenEvictionRunsMillis，执行validationQuery检测连接是否有效 -->
+        <property name="testOnReturn" value="false" /><!-- 归还连接时执行validationQuery检测连接是否有效,做了这个配置会降低性能 -->
+        <!-- 是否缓存preparedStatement,也就是PSCache.PSCache对支持游标的数据库性能提升巨大,比如说oracle.在mysql下建议关闭 -->
+        <property name="poolPreparedStatements" value="true" />
+        <property name="maxPoolPreparedStatementPerConnectionSize"
+            value="20" />
+
+        <!-- 配置监控统计拦截的filters -->
+        <property name="filters"  value="stat"/>
+
+        <property name="proxyFilters">
+            <list>
+                <ref bean="stat-filter" />
+            </list>
+        </property>
+    </bean>
+
+    <!-- 定义JdbcTemplate的Bean -->
+    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <constructor-arg ref="dataSource" />
+    </bean>
+
+    <bean id="namedParameterJdbcTemplate"
+        class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">
+        <constructor-arg ref="dataSource" />
+    </bean>
+
+    <!-- 引入transaction配置 -->
+    <import resource="classpath:spring/spring-transaction.xml" />
+
+    <!-- 引入mybatis配置 -->
+    <!-- <import resource="classpath:spring/spring-mybatis.xml" /> -->
+
+</beans>

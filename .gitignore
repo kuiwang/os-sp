@@ -1,0 +1,32 @@
+*.java.hsp
+*.sonarj
+*.sw*
+*.sh
+*.log
+.spring*
+target/
+bin
+logs/
+log/
+
+# Eclipse artifacts, including WTP generated manifests
+.classpath
+.project
+.settings
+.springBeans
+.external*
+/build
+build/
+gen/src
+
+
+# IDEA artifacts and output dirs
+*.iml
+*.ipr
+*.iws
+.idea
+
+
+.svn/
+svn*
+/sp/
